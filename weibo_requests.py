@@ -39,6 +39,7 @@ class CarSpider(object):
     #     comment.find('style').remove()
     #     comment.find('script').remove()
     #     print(comment.text())
+
     def get_comment(self, html):
         bs4_comment = bf(html, 'lxml')
         comment = bs4_comment.find(name = 'div', class_ = 'mouth-main')
