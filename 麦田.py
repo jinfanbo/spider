@@ -1,8 +1,10 @@
+# 3分钟
 import requests
 from bs4 import BeautifulSoup
 import pymongo
 import time
 import random
+import threading
 
 class MaitianSpider(object):
     def __init__(self):
@@ -10,19 +12,31 @@ class MaitianSpider(object):
         self.headers = {
             'User - Agent': 'Mozilla / 5.0(Windows NT 10.0; Win64; x64) AppleWebKit / 537.36(KHTML, like Gecko) Chrome / 67.0.3396.99 Safari / 537.36'
         }
-        self.proxies = {
-            'http':'http://183.62.196.10:3128',
-        }
+        self.proxies = [
+            '183.62.196.10:3128',
+            '125.62.26.197:3128',
+            '218.60.8.83:3129',
+            '221.7.255.168:8080',
+            '218.60.8.99:3129',
+            '61.135.217.7:80',
+            '180.168.13.26:8000',
+            '106.75.225.83:808'
+        ]
         self.data = []
 
     def GetHtmlTxt(self, url):
-        try:
-            response = requests.get(url, headers = self.headers, proxies = self.proxies)
-            htmltxt = response.content.decode('utf-8')
-        except Exception as e:
-            print('GetHtmlTxt错误:' + str(e))
-        else:
-            return htmltxt
+        retry_count = 11
+        while retry_count > 0:
+            try:
+                ip = random.choice(self.proxies)
+                print(ip)
+                response = requests.get(url, headers = self.headers, proxies = {'http':ip}, timeout = 1)
+                htmltxt = response.content.decode('utf-8')
+                return htmltxt
+            except Exception as e:
+                print('GetHtmlTxt错误:' + str(e))
+                retry_count -= 1
+        return None
 
     def ParseGetData(self, htmltxt):
         bs_html = BeautifulSoup(htmltxt, 'lxml')
@@ -38,23 +52,21 @@ class MaitianSpider(object):
 
     def DataSave(self):
         mongo = pymongo.MongoClient()
-        collection = mongo.maitian.room
+        collection = mongo.maitian1.room
         collection.insert(self.data)
         mongo.close()
 
-    def StarSpider(self):
-        for i in range(1,999):
-            url = self.url + str(i)
-            print('爬取:' + url)
-            spidertime = random.randint(1,10)
-            htmltxt = self.GetHtmlTxt(url)
-            try:
-                self.ParseGetData(htmltxt)
-                time.sleep(spidertime)
-            except Exception as e:
-                print('ParseGetData错误：' + str(e))
-        self.DataSave()
+    def StarSpider(self, page):
+        url = self.url + str(page)
+        print('爬取:' + url)
+        htmltxt = self.GetHtmlTxt(url)
+        try:
+            self.ParseGetData(htmltxt)
+        except Exception as e:
+            print('ParseGetData错误：' + str(e))
 
 if __name__ == '__main__':
     spider1 = MaitianSpider()
-    spider1.StarSpider()
+    for i in range(1,999):
+        spider1.StarSpider(i)
+    spider1.DataSave()
