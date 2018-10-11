@@ -4,7 +4,6 @@
 '''
 # 处理地名数据，解决坐标文件中找不到地名的问题
 import json
-
 # 导入Style类，用于定义样式风格
 from pyecharts import Style
 # 导入Geo组件，用于生成地理坐标类图
@@ -39,7 +38,6 @@ def render_city(cities):
     handle(cities)
     data = Counter(cities).most_common()  # 使用Counter类统计出现的次数，并转换为元组列表
     print(data)
-
     # 定义样式
     style = Style(
         title_color='#fff',
@@ -48,7 +46,6 @@ def render_city(cities):
         height=600,
         background_color='#404a59'
     )
-
     # 根据城市数据生成地理坐标图
     geo = Geo('《悲伤逆流成河》粉丝位置分布',  **style.init_style)
     attr, value = geo.cast(data)

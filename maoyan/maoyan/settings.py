@@ -19,7 +19,7 @@ NEWSPIDER_MODULE = 'maoyan.spiders'
 #USER_AGENT = 'maoyan (+http://www.yourdomain.com)'
 
 # Obey robots.txt rules
-ROBOTSTXT_OBEY = True
+ROBOTSTXT_OBEY = False
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 #CONCURRENT_REQUESTS = 32
@@ -40,9 +40,9 @@ ROBOTSTXT_OBEY = True
 
 # Override the default request headers:
 DEFAULT_REQUEST_HEADERS = {
-  "Host":"m.maoyan.com",
-  "Referer":"http://m.maoyan.com/movie/1217236/comments?_v_=yes",
-  'User-Agent': '5.0 (iPhone; CPU iPhone OS 10_2 like Mac OS X) AppleWebKit/602.3.12 (KHTML, like Gecko) Mobile/14C92 MicroMessenger/6.6.1 NetType/4G Language/zh_CN',
+  'Host':'m.maoyan.com',
+  'Referer':'http://m.maoyan.com/movie/1217236/comments?_v_=yes',
+  'User-Agent':'5.0 (iPhone; CPU iPhone OS 10_2 like Mac OS X) AppleWebKit/602.3.12 (KHTML, like Gecko) Mobile/14C92 MicroMessenger/6.6.1 NetType/4G Language/zh_CN',
 }
 
 # Enable or disable spider middlewares
