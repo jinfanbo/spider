@@ -50,16 +50,16 @@ class cebn_spider(object):
         ip_proxies = {'https': 'http://' + ip_proxy["ip"] + ':' + ip_proxy["port"]}
         try:
             response = requests.get(url, headers={'User-Agent': ua}, proxies=ip_proxies, timeout=1)
-            print(response.status_code)
-            print(ua)
-            print(ip_proxies)
-            return response.content.decode('utf-8')
+            if response.status_code == 200:
+                print(ua)
+                print(ip_proxies)
+                return response.content.decode('utf-8')
         except Exception as e:
             print(e)
             print(ip_proxies)
             self.get_html(url)
 
-    def parse_hot_html(self, response_html):
+    def parse_hot_url(self, response_html):
         p = etree.HTML(response_html)
         hots = p.xpath("//li[@class='fd-clr']/a/@href")
         for hot in hots:
@@ -109,7 +109,7 @@ class cebn_spider(object):
 if __name__ == '__main__':
     Spider = cebn_spider()
     html = Spider.get_html(Spider.start_url)
-    Spider.parse_hot_html(html)
+    Spider.parse_hot_url(html)
     # print(Spider.hot_url_sum_dict)
     urls = Spider.hot_url_sum_dict
     for url in urls.keys():
