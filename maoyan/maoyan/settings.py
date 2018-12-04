@@ -41,8 +41,8 @@ ROBOTSTXT_OBEY = False
 # Override the default request headers:
 DEFAULT_REQUEST_HEADERS = {
   'Host':'m.maoyan.com',
-  'Referer':'http://m.maoyan.com/movie/1217236/comments?_v_=yes',
-  'User-Agent':'5.0 (iPhone; CPU iPhone OS 10_2 like Mac OS X) AppleWebKit/602.3.12 (KHTML, like Gecko) Mobile/14C92 MicroMessenger/6.6.1 NetType/4G Language/zh_CN',
+  'Referer':'http://m.maoyan.com/movie/42964?_v_=yes',
+  'User-Agent':'Mozilla/5.0 (Linux; Android 5.0; SM-G900P Build/LRX21T) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Mobile Safari/537.36',
 }
 
 # Enable or disable spider middlewares

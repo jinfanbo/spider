@@ -7,6 +7,7 @@ import csv
 from datetime import date
 import pandas as pd
 
+
 class MaoyanSpider(object):
     user_agent = [
         'Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0',
@@ -81,16 +82,17 @@ class MaoyanSpider(object):
     def __init__(self):
 
         self.now_date = str(date.today())
-        self.url = 'https://piaofang.maoyan.com/cinema/filter?typeId=0&date={date}&offset=0&limit=799'.format(date = self.now_date)
+        # https://piaofang.maoyan.com/cinema/filter?typeId=0&date=2018-12-04&offset=0&limit=800
+        self.url = 'https://piaofang.maoyan.com/cinema/filter?typeId=0&date={date}&offset=0&limit=700'.format(
+            date=self.now_date)
         self.headers = {
             'refer': 'https://piaofang.maoyan.com/company/cinema',
             'User-Agent': random.choice(self.user_agent),
         }
         self.info = []
 
-
     def GetHtml(self):
-        response = requests.get(self.url, headers = self.headers, timeout = 5)
+        response = requests.get(self.url, headers=self.headers, timeout=5)
         if response.status_code == 200:
             return response.text
         else:
@@ -103,11 +105,11 @@ class MaoyanSpider(object):
             cinemas = html_json.get('data').get('list')
             for cinema in cinemas:
                 ms = {}
-                ms['cinemaName'] = cinema.get('cinemaName') #影院名
-                ms['boxInfo'] = cinema.get('boxInfo') #票房
-                ms['viewInfo'] = cinema.get('viewInfo') #人次
-                ms['avgShowView'] = cinema.get('avgShowView') #场均人次
-                ms['avgViewBox'] = cinema.get('avgViewBox') #平均票价
+                ms['cinemaName'] = cinema.get('cinemaName')  # 影院名
+                ms['boxInfo'] = cinema.get('boxInfo')  # 票房
+                ms['viewInfo'] = cinema.get('viewInfo')  # 人次
+                ms['avgShowView'] = cinema.get('avgShowView')  # 场均人次
+                ms['avgViewBox'] = cinema.get('avgViewBox')  # 平均票价
                 self.info.append(ms)
         else:
             print('json页面不存在！')
@@ -115,17 +117,18 @@ class MaoyanSpider(object):
     def DataSave(self):
         info_list = []
         for info in self.info:
-            info_list.append([info['cinemaName'], info['boxInfo'] ,info['viewInfo'] ,info['avgShowView'] ,info['avgViewBox']])
+            info_list.append(
+                [info['cinemaName'], info['boxInfo'], info['viewInfo'], info['avgShowView'], info['avgViewBox']])
         if self.info != []:
-            #写入csv
+            # 写入csv
             # 表头
             name = ['cinemaName', 'boxInfo', 'viewInfo', 'avgShowView', 'avgViewBox']
             # 建立DataFrame对象
             file_test = pd.DataFrame(columns=name, data=info_list)
             # 数据写入
-            file_test.to_csv(r'E:/spider/spider/maoyan/maoyan_cinema.csv', index=False)
+            file_test.to_csv(r'E:/spider/spider/maoyan/maoyan_cinema_2.csv', index=False)
 
-            #写入mongodb
+            # 写入mongodb
             mongo = pymongo.MongoClient()
             collection = mongo.maoyan.cinema
             collection.insert(self.info)
@@ -138,9 +141,7 @@ class MaoyanSpider(object):
         self.Parse(html)
         self.DataSave()
 
+
 if __name__ == '__main__':
     spider1 = MaoyanSpider()
     spider1.RunSpider()
-
-
-
