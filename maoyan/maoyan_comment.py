@@ -41,7 +41,7 @@ class MaoyanCommentSpider(object):
         self.now_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         self.movie_url = 'http://m.maoyan.com/ajax/search?kw={name}&cityId=1&stype=-1'.format(name=name)
         self.start_url = 'http://maoyan.com/{movieid}?_v_=yes'
-        self.comment_url = 'http://m.maoyan.com/mmdb/comments/movie/{movieid}.json?_v_=yes&offset={limit}&startTime={date}'
+        self.comment_url = 'http://m.maoyan.com/mmdb/comments/movie/{movieid}.json?_v_=yes&offset=15&startTime={date}'
         self.info = []
 
     def GetMovieId(self):
@@ -71,18 +71,19 @@ class MaoyanCommentSpider(object):
             # 'Referer': 'http://m.maoyan.com/movie/{movieid}?_v_ = yes'.format(movieid=movie_id),
             'User-Agent': random.choice(self.user_agent)
         }
-        response = requests.get(self.start_url.format(movieid=movie_id), headers=headers)
+        response = requests.get(self.comment_url.format(movieid=movie_id, date=self.now_date), headers=headers)
         if response.status_code == 200:
-            movie_detail = response.text
-            print(movie_detail)
-            detail = etree.HTML(movie_detail)
-            print(detail)
-            comment_nums = detail.xpath('//a[@class="link link-more comments-link"]/h4/span[2]/text()')
+            # print(movie_detail)
+            # detail = etree.HTML(movie_detail)
+            # print(detail)
+            # comment_nums = detail.xpath('//a[@class="link link-more comments-link"]/h4/span[2]/text()')
+            comments_list = json.loads(response.text)
+            comment_nums = comments_list.get('total')
             return comment_nums
         else:
             print("电影评论总数获取失败：状态码" + response.status_code)
 
-    def GetComment(self, movie_id):
+    def GetComment(self, movie_id, comment_nums):
         '''
         获取所有评论
         :param movie_id: GetMovieId()获取电影id
@@ -91,21 +92,27 @@ class MaoyanCommentSpider(object):
         headers = {
             'User-Agent': random.choice(self.user_agent)
         }
-        for num in range(0, 1000, 15):
-            response = requests.get(self.comment_url.format(movieid=movie_id, limit=num, date=self.now_date), headers=headers)
+        for num in range(0, comment_nums, 15):
+            ip_proxy = random.choice(self.ip)
+            ip_proxies = {'https': 'http://' + ip_proxy["ip"] + ':' + ip_proxy["port"]}
+            print(ip_proxies)
+            response = requests.get(self.comment_url.format(movieid=movie_id, date=self.now_date), headers=headers, proxies=ip_proxies)
             if response.status_code == 200:
                 comments_list = json.loads(response.text)
                 if comments_list.get('total') != 0:
                     comments = comments_list.get('cmts')
+                    self.now_date = comments[0].get("startTime")
+                    print(self.now_date)
                     for comment in comments:
                         cm = {}
                         cm["cityName"] = comment.get("cityName")
                         cm["content"] = comment.get("content")
                         cm["nickName"] = comment.get("nickName")
                         cm["score"] = comment.get("score")
+                        cm["startTime"] = comment.get("startTime")
                         self.info.append(cm)
                 else:
-                    print('该url无评论！ ' + self.comment_url.format(movie_id=movie_id, limit=num, date=self.now_date))
+                    print('该url无评论！ ' + self.comment_url.format(movieid=movie_id, date=self.now_date))
             else:
                 print("电影评论获取失败：状态码" + response.status_code)
 
@@ -113,18 +120,18 @@ class MaoyanCommentSpider(object):
         info_list = []
         for info in self.info:
             info_list.append(
-                [info['nickName'], info['cityName'], info['score'], info['content']])
+                [info['nickName'], info['cityName'], info['score'], info['content'], info['startTime']])
         if self.info != []:
             # 写入csv
             # 表头
-            name = ['nickName', 'cityName', 'score', 'content']
+            name = ['nickName', 'cityName', 'score', 'content', 'startTime']
             # 建立DataFrame对象
             file_test = pd.DataFrame(columns=name, data=info_list)
             # 数据写入csv
-            file_test.to_csv(r'E:/spider/spider/maoyan/maoyan_comment_1.csv', index=False)
+            file_test.to_csv(r'E:/spider/spider/maoyan/maoyan_comment_2.csv', index=False)
             # 写入mongodb
             mongo = pymongo.MongoClient()
-            collection = mongo.maoyan.comment
+            collection = mongo.maoyan.comment2
             collection.insert(self.info)
             mongo.close()
         else:
@@ -133,9 +140,9 @@ class MaoyanCommentSpider(object):
     def RunSpider(self):
         movie_id = self.GetMovieId()
         print(movie_id)
-        # comment_num = self.GetCommentNums(movie_id)
-        # print(comment_num)
-        self.GetComment(movie_id)
+        comment_num = self.GetCommentNums(movie_id)
+        print(comment_num)
+        self.GetComment(movie_id, comment_num)
         self.DataSave()
 
 
