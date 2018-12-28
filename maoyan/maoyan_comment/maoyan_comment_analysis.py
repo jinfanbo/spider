@@ -12,7 +12,7 @@ import pandas as pd
 def read_csv():
     # content = ''
     # 读文件
-    comment = pd.read_csv(r'E:\spider\spider\maoyan\maoyan_comment_4.csv')
+    comment = pd.read_csv(r'E:\spider\spider\maoyan\maoyan_comment\maoyan_comment_4.csv')
     # print(comment.info())
     # 缺失值并不多，所以删除含有缺失值的行
     comment.dropna()

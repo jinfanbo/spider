@@ -3,7 +3,6 @@ import json
 import random
 import pymongo
 import pandas as pd
-from lxml import etree
 from datetime import datetime
 
 
@@ -128,10 +127,10 @@ class MaoyanCommentSpider(object):
             # 建立DataFrame对象
             file_test = pd.DataFrame(columns=name, data=info_list)
             # 数据写入csv
-            file_test.to_csv(r'E:/spider/spider/maoyan/maoyan_comment_2.csv', index=False)
+            file_test.to_csv(r'E:/spider/spider/maoyan/maoyan_comment_TQYB_2018-12-28.csv', index=False)
             # 写入mongodb
             mongo = pymongo.MongoClient()
-            collection = mongo.maoyan.comment2
+            collection = mongo.maoyan.comment_TQYB
             collection.insert(self.info)
             mongo.close()
         else:
@@ -147,7 +146,7 @@ class MaoyanCommentSpider(object):
 
 
 if __name__ == '__main__':
-    spider1 = MaoyanCommentSpider('毒液')
+    spider1 = MaoyanCommentSpider('天气预爆')
     # movie_id = spider1.GetMovieId()
     # print(movie_id)
     # comment_num = spider1.GetCommentNums(movie_id)
